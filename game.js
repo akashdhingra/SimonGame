@@ -26,16 +26,15 @@ $(".btn").click(function(){
 });
 
 function nextSequence(){
+  userClickedPattern = [];
   level++;
-
   $("#level-title").text("Level "+level);
 
   var randomNumber = Math.floor(Math.random()*4);
   var randomChosenColour = buttonColours[randomNumber];
   gamePattern.push(randomChosenColour);
-
   $("#" + randomChosenColour).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-  // playSound(randomChosenColour);
+  playSound(randomChosenColour);
 }
 
 function playSound(name){
@@ -47,30 +46,42 @@ function animatePress(currentColour){
   $("#"+currentColour).addClass("pressed");
   setTimeout(function(){
     $("#"+currentColour).removeClass("pressed");},100)
-};
+}
 
-function wrongButton(){
-  $("body").addClass("game-over");
-  setTimeout(function(){
-    $("body").removeClass("game-over");},200)
-};
 
+function startOver(){
+  level = 0;
+  gamePattern = [];
+  started = false;
+}
 
 function checkAnswers(currentLevel){
+  console.log("Game pattern in  checkAnswers " + gamePattern);
+  console.log("User clicked patter in checkAnswers " + userClickedPattern);
 
-  if(userClickedPattern[currentLevel] == gamePattern[currentLevel]){
-      console.log("success");
-      if (userClickedPattern.length == gamePattern.length){
+// It is checking if pressed key is equal to the key in the game pattern and
+// it will keep on checking until both the values of userClickedPattern and
+// gamePattern becomes equal.
+// Once it became equal then it will increase the level by calling the nextSequence
+// If user selects wrong click then the game starts again
+  if(userClickedPattern[currentLevel] === gamePattern[currentLevel]){
+      if (userClickedPattern.length === gamePattern.length){
         setTimeout(function(){
           nextSequence();
         }, 1000);
-
       }
   }
   else
-    console.log("wrong");
-    var audio = new Audio("sounds/wrong.mp3");
-    var playPromise = audio.play();
-    wrongButton();
+    {
+      playSound("wrong");
+      $("body").addClass("game-over");
+      $("level-title").text("Game Over, Press any button to restart")
+
+      setTimeout(function(){
+        $("body").removeClass("game-over");
+      },200);
+
+    startOver();
+  }
 
 }
